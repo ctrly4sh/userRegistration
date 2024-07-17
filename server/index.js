@@ -9,6 +9,10 @@ app.use(cors);
 app.use(express.json())
 
 /* MONGO DB */
+mongoose.connect("mongodb://localhost:27017/auth")
+    .then(() => { console.log("Monogo Connected") })
+    .catch((error)=>{console.log(`Unknown error : ${error} occured`)});
+
 
 app.get('/', (req, res) => {
     res.json({
@@ -16,6 +20,10 @@ app.get('/', (req, res) => {
     });
 })
 
+/* Global error handler */
+
+
+/* SERVER*/
 app.listen(6900, () => {
     console.log("server listening on port : 69");
 })
