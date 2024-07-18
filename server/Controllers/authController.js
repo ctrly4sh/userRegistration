@@ -1,74 +1,93 @@
 const user = require("../Models/userModel");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { all } = require("../Routes/authRoute");
 
 exports.signup = async (req, res, next) => {
     try {
-        const existingUser = await user.findOne({ email: req.body.email })
+        const existingUser = await user.findOne({ email: req.body.email });
         if (existingUser) {
-            return "user already exists! kindly login"
+            return res.status(400).json({
+                status: "failed",
+                message: "User already exists! Kindly login."
+            });
         }
-        const hashedPassword = await bcrypt.hash(req.body.password, 10)
-        const newRegisteredUser = user.create({
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const newRegisteredUser = await user.create({
             ...req.body,
             password: hashedPassword
-        })
+        });
         const webToken = jwt.sign({ _id: newRegisteredUser._id }, "milkman6969", {
             expiresIn: '90d',
         });
         res.status(201).json({
-            status: "succeded",
-            message: "New user Signined successfully",
+            status: "succeeded",
+            message: "New user signed up successfully",
             webToken,
-        })
+        });
     } catch (exe) {
-        console.log("Error occures",exe)
+        console.log("Error occurred", exe);
+        res.status(500).json({
+            status: "failed",
+            message: "An error occurred during signup"
+        });
     }
 };
 
-
 exports.getUsers = async (req, res) => {
-    const allUsers = await user.find()
-    res.send(allUsers)
-}
+    try {
+        const allUsers = await user.find();
+        res.status(200).json(allUsers);
+    } catch (exe) {
+        console.log("Error occurred", exe);
+        res.status(500).json({
+            status: "failed",
+            message: "An error occurred while fetching users"
+        });
+    }
+};
 
 exports.login = async (req, res) => {
     try {
-        const { email, password } = req.body
-
-        const userExists = await user.find({ email })
+        const { email, password } = req.body;
+        const userExists = await user.findOne({ email });
 
         if (!userExists) {
-            return "No user Found kindly Sign up before Login !!"
+            return res.status(400).json({
+                status: "failed",
+                message: "No user found. Kindly sign up before login!"
+            });
         }
 
-        const isPasswordValid = bcrypt.compare(password, userExists.password)
+        const isPasswordValid = await bcrypt.compare(password, userExists.password);
 
         if (!isPasswordValid) {
-            return "Incorrect Password check it once again :P"
+            return res.status(400).json({
+                status: "failed",
+                message: "Incorrect password. Check it once again :P"
+            });
         }
 
-        const webToken = jwt.sign({ _id: newRegisteredUser._id }, "milkman6969", {
+        const webToken = jwt.sign({ _id: userExists._id }, "milkman6969", {
             expiresIn: '90d',
         });
 
-        res.status(201).json({
-            status: "Login Succesffull",
-            message: "user Logined successfully",
+        res.status(200).json({
+            status: "Login successful",
+            message: "User logged in successfully",
             webToken,
             user: {
-                _id: user._id,
-                name: user.name,
-                password: user.password,
-                email: user.email,
-                human : true
+                _id: userExists._id,
+                name: userExists.name,
+                email: userExists.email,
+                human: true
             }
-        })
+        });
 
     } catch (exe) {
-        console.log("")
+        console.log(`Error occurred: ${exe}`);
+        res.status(500).json({
+            status: "failed",
+            message: "An error occurred during login"
+        });
     }
 };
-
-

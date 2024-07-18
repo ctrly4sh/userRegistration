@@ -10,6 +10,7 @@ app.use(express.json())
 
 app.use('/api/auth' , authRoute)
 app.use('/api/auth' , authRoute)
+app.use('/api/auth' , authRoute)
 
 mongoose.connect("mongodb://localhost:27017/auth")
     .then(() => { console.log("Monogo Connected") })
