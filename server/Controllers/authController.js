@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 exports.signup = async (req, res, next) => {
     try {
         const existingUser = await user.findOne({ email: req.body.email });
+
         if (existingUser) {
             return res.status(400).json({
                 status: "failed",
@@ -12,18 +13,22 @@ exports.signup = async (req, res, next) => {
             });
         }
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
         const newRegisteredUser = await user.create({
             ...req.body,
             password: hashedPassword
         });
+
         const webToken = jwt.sign({ _id: newRegisteredUser._id }, "milkman6969", {
             expiresIn: '90d',
         });
+
         res.status(201).json({
             status: "succeeded",
             message: "New user signed up successfully",
             webToken,
         });
+        
     } catch (exe) {
         console.log("Error occurred", exe);
         res.status(500).json({
