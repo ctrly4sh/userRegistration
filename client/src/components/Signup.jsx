@@ -2,11 +2,17 @@ import React from "react"
 import { Link } from "react-router-dom"
 
 export const Signup = () => {
+
+    const handleRegister = (value) => {
+        console.log(value)
+    }
+
     return (
         <>
             Signup...
 
             <form action="">
+
                 <p>
 
                     <label htmlFor="">Name : </label>
@@ -28,8 +34,12 @@ export const Signup = () => {
                 </p>
 
                 <p>
+                    <button onClick={handleRegister} type="submit">Signup</button>
+                </p>
+
+                <p>
                     <Link to='/login'>
-                    <button type="submit">Signup</button>
+                        <button type="submit" >Login</button>
                     </Link>
                 </p>
             </form>
